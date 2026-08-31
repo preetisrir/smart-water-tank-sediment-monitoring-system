@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHostel - Management System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root {
+            --bg-sidebar: #1e293b;
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+        }
+
+        body { display: flex; background: var(--bg-main); color: var(--text-main); min-height: 100vh; }
+
+        /* Sidebar Navigation */
+        aside { width: 250px; background: var(--bg-sidebar); color: white; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 2rem; }
+        .logo { font-size: 1.3rem; font-weight: bold; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+        .nav-links a {
+            color: #94a3b8; text-decoration: none; padding: 0.75rem 1rem; border-radius: 6px; display: block; cursor: pointer; transition: 0.2s;
+        }
+        .nav-links a:hover, .nav-links a.active { background: var(--primary); color: white; }
+
+        /* Main Content Layout */
+        main { flex: 1; padding: 2rem; overflow-y: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .user-badge { display: flex; align-items: center; gap: 0.75rem; background: white; padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--border); }
+        .avatar { width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* Tab Content Control */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* UI Cards & Grids */
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+        @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .card { background: var(--card-bg); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        .card h3 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .card .metric { font-size: 1.8rem; font-weight: bold; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { text-align: left; padding: 0.8rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        th { background: #f1f5f9; color: var(--text-muted); }
+        
+        /* Status Badges */
+        .badge { padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+        .badge.paid { background: #dcfce7; color: var(--success); }
+        .badge.pending { background: #fef3c7; color: var(--warning); }
+        .badge.resolved { background: #dbeafe; color: var(--primary); }
+
+        /* Forms */
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 0.3rem; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;
+        }
+        .btn { background: var(--primary); color: white; border: none; padding: 0.75rem 1rem; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn:hover { background: var(--primary-dark); }
+
+        /* Search input */
+        .search-box { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 6px; width: 300px; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Menu -->
+    <aside>
+        <div class="logo">🏢 CampusHostel</div>
+        <ul class="nav-links">
+            <li><a class="active" onclick="switchTab('dashboard', this)">Dashboard</a></li>
+            <li><a onclick="switchTab('students', this)">Students</a></li>
+            <li><a onclick="switchTab('rooms', this)">Room Allocation</a></li>
+            <li><a onclick="switchTab('fees', this)">Fees Management</a></li>
+            <li><a onclick="switchTab('attendance', this)">Attendance</a></li>
+            <li><a onclick="switchTab('complaints', this)">Complaints</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header>
+            <h1 id="page-title">Dashboard</h1>
+            <div class="user-profile user-badge">
+                <div class="avatar">W</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 0.9rem;">Preeti & Karthiga</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Hostel Wardens</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- TAB 1: DASHBOARD -->
+        <div id="dashboard" class="tab-content active">
+            <div class="grid-4">
+                <div class="card"><h3>Total Students</h3><div class="metric">128</div></div>
+                <div class="card"><h3>Available Beds</h3><div class="metric" style="color: var(--success);">22</div></div>
+                <div class="card"><h3>Pending Fees</h3><div class="metric" style="color: var(--warning);">$850</div></div>
+                <div class="card"><h3>Open Issues</h3><div class="metric" style="color: var(--danger);">3</div></div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Recent Allocations</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Student</th><th>Room</th><th>Date</th><th>Status</th></tr>
+                        </thead>
+                        <tbody id="dash-table">
+                            <tr><td>Preeti Sharma</td><td>A-101</td><td>2026-08-10</td><td><span class="badge paid">Paid</span></td></tr>
+                            <tr><td>Karthiga Nathan</td><td>B-202</td><td>2026-08-12</td><td><span class="badge paid">Paid</span></td></tr>
+                            <tr><td>Rohan Kumar</td><td>C-301</td><td>2026-08-13</td><td><span class="badge pending">Pending</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>Quick Allocate</h3>
+                    <form onsubmit="handleQuickAllocate(event)">
+                        <div class="form-group">
+                            <label>Student Name</label>
+                            <input type="text" id="q-name" required placeholder="Full Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Room Number</label>
+                            <select id="q-room">
+                                <option>Block A - 102</option>
+                                <option>Block B - 201</option>
+                                <option>Block C - 305</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Fee Status</label>
+                            <select id="q-status">
+                                <option value="Paid">Paid</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">Allocate Bed</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: STUDENTS -->
+        <div id="students" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>Student Directory</h3>
+                    <input type="text" class="search-box" placeholder="Search by name..." onkeyup="filterStudents(this.value)">
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Name</th><th>Phone</th><th>Room</th><th>Emergency Contact</th></tr>
+                    </thead>
+                    <tbody id="student-list">
+                        <tr><td>#ST-01</td><td>Preeti Sharma</td><td>+91 98765 43210</td><td>A-101</td><td>Parent (+91 98765 00000)</td></tr>
+                        <tr><td>#ST-02</td><td>Karthiga Nathan</td><td>+91 98765 43211</td><td>B-202</td><td>Parent (+91 98765 00001)</td></tr>
+                        <tr><td>#ST-03</td><td>Rohan Kumar</td><td>+91 98765 43212</td><td>C-301</td><td>Guardian (+91 98765 00002)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 3: ROOMS -->
+        <div id="rooms" class="tab-content">
+            <div class="card">
+                <h3>Block A Occupancy Status</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 6px; text-align: center; background: #fef2f2;">
+                        <strong>Room 101</strong><br><small style="color: var(--danger);">Occupied (2/2)</small>
+                    </div>
+                    <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 6px; text-align: center; background: #f0fdf4;">
+                        <strong>Room 102</strong><br><small style="color: var(--success);">1 Bed Free</small>
+                    </div>
+                    <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 6px; text-align: center; background: #f0fdf4;">
+                        <strong>Room 103</strong><br><small style="color: var(--success);">2 Beds Free</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: FEES -->
+        <div id="fees" class="tab-content">
+            <div class="card">
+                <h3>Payment Ledger</h3>
+                <table>
+                    <thead>
+                        <tr><th>Receipt ID</th><th>Student</th><th>Amount</th><th>Date</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>#INV-801</td><td>Preeti Sharma</td><td>$250</td><td>2026-08-01</td><td><span class="badge paid">Paid</span></td></tr>
+                        <tr><td>#INV-802</td><td>Karthiga Nathan</td><td>$250</td><td>2026-08-01</td><td><span class="badge paid">Paid</span></td></tr>
+                        <tr><td>#INV-803</td><td>Rohan Kumar</td><td>$250</td><td>-</td><td><span class="badge pending">Pending</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 5: ATTENDANCE -->
+        <div id="attendance" class="tab-content">
+            <div class="card">
+                <h3>Daily Gate Entry Logs</h3>
+                <table>
+                    <thead>
+                        <tr><th>Student</th><th>Room</th><th>Out Time</th><th>In Time</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Preeti Sharma</td><td>A-101</td><td>05:30 PM</td><td>08:15 PM</td></tr>
+                        <tr><td>Karthiga Nathan</td><td>B-202</td><td>06:00 PM</td><td>07:45 PM</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 6: COMPLAINTS -->
+        <div id="complaints" class="tab-content">
+            <div class="card">
+                <h3>Maintenance Requests</h3>
+                <table>
+                    <thead>
+                        <tr><th>Room</th><th>Issue</th><th>Reported On</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>A-101</td><td>Fan making noise</td><td>2026-08-11</td><td><span class="badge pending">Pending</span></td></tr>
+                        <tr><td>B-202</td><td>Water tap leaking</td><td>2026-08-09</td><td><span class="badge resolved">Resolved</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JavaScript Navigation and Logic -->
+    <script>
+        // Switch Page Tabs
+        function switchTab(tabId, element) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            // Remove active class from nav links
+            document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+            
+            // Show selected tab & active link
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+            
+            // Update Title
+            document.getElementById('page-title').innerText = element.innerText;
+        }
+
+        // Quick Allocate Form Handler
+        function handleQuickAllocate(event) {
+            event.preventDefault();
+            const name = document.getElementById('q-name').value;
+            const room = document.getElementById('q-room').value;
+            const status = document.getElementById('q-status').value;
+            const today = new Date().toISOString().split('T')[0];
+
+            // Add row to Dashboard table
+            const table = document.getElementById('dash-table');
+            const row = table.insertRow(0);
+            const badgeClass = status === 'Paid' ? 'paid' : 'pending';
+            
+            row.innerHTML = `
+                <td>${name}</td>
+                <td>${room}</td>
+                <td>${today}</td>
+                <td><span class="badge ${badgeClass}">${status}</span></td>
+            `;
+
+            // Add to Student List
+            const studentList = document.getElementById('student-list');
+            const newStudentRow = studentList.insertRow(0);
+            newStudentRow.innerHTML = `
+                <td>#ST-${Math.floor(Math.random()*90)+10}</td>
+                <td>${name}</td>
+                <td>+91 98765 00000</td>
+                <td>${room}</td>
+                <td>Guardian</td>
+            `;
+
+            alert('Bed allocated successfully!');
+            document.getElementById('q-name').value = '';
+        }
+
+        // Simple Search Filter
+        function filterStudents(query) {
+            const rows = document.querySelectorAll('#student-list tr');
+            rows.forEach(row => {
+                const name = row.children[1].innerText.toLowerCase();
+                row.style.display = name.includes(query.toLowerCase()) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
