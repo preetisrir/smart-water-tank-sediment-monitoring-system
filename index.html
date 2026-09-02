@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartTank | Sediment Monitoring</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-mark">
+                <span>💧</span>
+            </div>
+
+            <div class="brand-text">
+                <strong>SmartTank</strong>
+                <small>Sediment Control</small>
+            </div>
+        </div>
+
+        <nav class="navigation">
+
+            <div class="nav-section">
+                <span class="nav-section-title">OVERVIEW</span>
+
+                <button class="nav-item active" data-page="dashboard">
+                    <span class="nav-icon">⌂</span>
+                    <span>Dashboard</span>
+                </button>
+
+                <button class="nav-item" data-page="monitoring">
+                    <span class="nav-icon">◉</span>
+                    <span>Sediment Monitoring</span>
+                </button>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-title">CONTROL</span>
+
+                <button class="nav-item" data-page="limit">
+                    <span class="nav-icon">⚙</span>
+                    <span>Sediment Limit</span>
+                </button>
+
+                <button class="nav-item" data-page="alerts">
+                    <span class="nav-icon">⚠</span>
+                    <span>Alerts</span>
+                    <span class="nav-count">2</span>
+                </button>
+
+                <button class="nav-item" data-page="supply">
+                    <span class="nav-icon">⇅</span>
+                    <span>Water Supply</span>
+                </button>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-title">DATA</span>
+
+                <button class="nav-item" data-page="records">
+                    <span class="nav-icon">▤</span>
+                    <span>Records</span>
+                </button>
+            </div>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="connection-card">
+                <div class="connection-icon">
+                    ✓
+                </div>
+
+                <div>
+                    <strong>System Ready</strong>
+                    <small>Monitoring active</small>
+                </div>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+    <main class="main-content">
+
+        <!-- HEADER -->
+        <header class="header">
+
+            <button class="menu-button" id="menuButton">
+                ☰
+            </button>
+
+            <div class="header-title">
+                <span>Water Tank Management</span>
+            </div>
+
+            <div class="header-right">
+
+                <button
+                    class="notification-button"
+                    id="notificationButton"
+                    aria-label="View alerts">
+
+                    <span class="bell-icon">♢</span>
+                    <span class="notification-count">2</span>
+
+                </button>
+
+                <div class="profile">
+
+                    <div class="avatar">
+                        AU
+                    </div>
+
+                    <div class="profile-details">
+                        <strong>Authorized User</strong>
+                        <span>System User</span>
+                    </div>
+
+                    <span class="profile-chevron">⌄</span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <div class="page-container">
+
+            <!-- =================================================
+                 DASHBOARD
+                 ================================================= -->
+
+            <section class="page active-page" id="dashboard">
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="breadcrumb">
+                            Overview <span>/</span> Dashboard
+                        </div>
+
+                        <h1>Water Tank Dashboard</h1>
+
+                        <p>
+                            Real-time view of sediment level and automatic
+                            water supply status.
+                        </p>
+                    </div>
+
+                    <div class="live-indicator">
+                        <span class="live-dot"></span>
+                        Live monitoring
+                    </div>
+
+                </div>
+
+
+                <!-- TOP STATUS CARDS -->
+                <div class="status-grid">
+
+                    <!-- Sediment -->
+                    <div class="status-card sediment-card">
+
+                        <div class="status-card-top">
+
+                            <div class="status-card-label">
+                                <span class="mini-icon blue">◉</span>
+                                <span>Current Sediment</span>
+                            </div>
+
+                            <span class="state-badge warning">
+                                WARNING
+                            </span>
+
+                        </div>
+
+                        <div class="metric-row">
+                            <strong id="dashboardSediment">62</strong>
+                            <span>%</span>
+                        </div>
+
+                        <div class="progress-track">
+                            <div
+                                class="progress-value warning-progress"
+                                id="dashboardProgress"
+                                style="width:62%;">
+                            </div>
+                        </div>
+
+                        <div class="metric-footer">
+                            <span>Safe limit</span>
+                            <strong>
+                                <span id="dashboardLimit">70</span>%
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Supply -->
+                    <div class="status-card supply-card">
+
+                        <div class="status-card-top">
+
+                            <div class="status-card-label">
+                                <span class="mini-icon green">⇅</span>
+                                <span>Water Supply</span>
+                            </div>
+
+                            <span class="state-badge normal">
+                                NORMAL
+                            </span>
+
+                        </div>
+
+                        <div class="supply-main">
+
+                            <div class="supply-status-icon">
+                                💧
+                            </div>
+
+                            <div>
+                                <strong id="dashboardSupply">
+                                    ON
+                                </strong>
+
+                                <span>
+                                    Automatic control active
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="metric-footer">
+                            <span>Current condition</span>
+                            <strong class="success-text">
+                                Below safe limit
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Safe Limit -->
+                    <div class="status-card">
+
+                        <div class="status-card-top">
+
+                            <div class="status-card-label">
+                                <span class="mini-icon purple">⚙</span>
+                                <span>Safe Limit</span>
+                            </div>
+
+                            <span class="state-badge neutral">
+                                CONFIGURED
+                            </span>
+
+                        </div>
+
+                        <div class="metric-row">
+                            <strong id="limitCardValue">70</strong>
+                            <span>%</span>
+                        </div>
+
+                        <div class="limit-scale">
+                            <span>0%</span>
+                            <span>Maximum safe level</span>
+                            <span>100%</span>
+                        </div>
+
+                        <div class="limit-line">
+                            <div class="limit-marker" style="left:70%;"></div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Alerts -->
+                    <div class="status-card alert-card">
+
+                        <div class="status-card-top">
+
+                            <div class="status-card-label">
+                                <span class="mini-icon orange">⚠</span>
+                                <span>Active Alerts</span>
+                            </div>
+
+                            <span class="state-badge critical">
+                                ATTENTION
+                            </span>
+
+                        </div>
+
+                        <div class="metric-row">
+                            <strong>2</strong>
+                            <span class="alert-text">alerts</span>
+                        </div>
+
+                        <div class="alert-summary">
+                            <span class="alert-dot"></span>
+                            <span>Latest reading exceeded limit</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MAIN VISUAL AREA -->
+                <div class="dashboard-main-grid">
+
+                    <!-- REAL-TIME CHART -->
+                    <div class="panel chart-panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+                                <h2>Sediment Level Trend</h2>
+                                <p>
+                                    Recent sensor readings against the safe limit
+                                </p>
+                            </div>
+
+                            <div class="chart-live">
+                                <span class="live-dot"></span>
+                                Updating
+                            </div>
+
+                        </div>
+
+                        <div class="chart-legend">
+
+                            <span>
+                                <i class="legend-line"></i>
+                                Sediment level
+                            </span>
+
+                            <span>
+                                <i class="legend-limit"></i>
+                                Safe limit
+                            </span>
+
+                        </div>
+
+                        <div class="chart-container">
+
+                            <div class="chart-y-axis">
+                                <span>100%</span>
+                                <span>80%</span>
+                                <span>60%</span>
+                                <span>40%</span>
+                                <span>20%</span>
+                                <span>0%</span>
+                            </div>
+
+                            <div class="chart-area">
+
+                                <div class="chart-grid-line"></div>
+                                <div class="chart-grid-line"></div>
+                                <div class="chart-grid-line"></div>
+                                <div class="chart-grid-line"></div>
+                                <div class="chart-grid-line"></div>
+
+                                <div class="safe-limit-line">
+                                    <span>70% limit</span>
+                                </div>
+
+                                <svg
+                                    class="sediment-chart"
+                                    viewBox="0 0 700 260"
+                                    preserveAspectRatio="none">
+
+                                    <defs>
+                                        <linearGradient
+                                            id="areaGradient"
+                                            x1="0"
+                                            y1="0"
+                                            x2="0"
+                                            y2="1">
+
+                                            <stop
+                                                offset="0%"
+                                                stop-opacity=".22"/>
+
+                                            <stop
+                                                offset="100%"
+                                                stop-opacity="0"/>
+                                        </linearGradient>
+                                    </defs>
+
+                                    <path
+                                        class="chart-area-fill"
+                                        d="
+                                        M0,150
+                                        L100,135
+                                        L200,120
+                                        L300,132
+                                        L400,105
+                                        L500,92
+                                        L600,112
+                                        L700,98
+                                        L700,260
+                                        L0,260
+                                        Z">
+                                    </path>
+
+                                    <polyline
+                                        class="chart-line"
+                                        points="
+                                        0,150
+                                        100,135
+                                        200,120
+                                        300,132
+                                        400,105
+                                        500,92
+                                        600,112
+                                        700,98">
+                                    </polyline>
+
+                                    <circle cx="0" cy="150" r="4"></circle>
+                                    <circle cx="100" cy="135" r="4"></circle>
+                                    <circle cx="200" cy="120" r="4"></circle>
+                                    <circle cx="300" cy="132" r="4"></circle>
+                                    <circle cx="400" cy="105" r="4"></circle>
+                                    <circle cx="500" cy="92" r="4"></circle>
+                                    <circle cx="600" cy="112" r="4"></circle>
+                                    <circle
+                                        class="current-point"
+                                        cx="700"
+                                        cy="98"
+                                        r="6">
+                                    </circle>
+
+                                </svg>
+
+                                <div class="chart-x-axis">
+                                    <span>08:45</span>
+                                    <span>08:50</span>
+                                    <span>08:55</span>
+                                    <span>09:00</span>
+                                    <span>09:05</span>
+                                    <span>09:10</span>
+                                    <span>09:15</span>
+                                    <span>09:20</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TANK STATUS -->
+                    <div class="panel tank-panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+                                <h2>Tank Status</h2>
+                                <p>Current sediment condition</p>
+                            </div>
+
+                            <span class="state-badge warning">
+                                WARNING
+                            </span>
+
+                        </div>
+
+                        <div class="tank-visual">
+
+                            <div class="tank">
+
+                                <div class="tank-water">
+                                    <div class="water-wave"></div>
+                                </div>
+
+                                <div
+                                    class="sediment-layer"
+                                    style="height: 19%;">
+                                </div>
+
+                                <div class="tank-level-label">
+                                    62%
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="tank-scale">
+
+                            <div>
+                                <span class="scale-dot normal-dot"></span>
+                                Normal
+                            </div>
+
+                            <div>
+                                <span class="scale-dot warning-dot"></span>
+                                Warning
+                            </div>
+
+                            <div>
+                                <span class="scale-dot critical-dot"></span>
+                                Critical
+                            </div>
+
+                        </div>
+
+                        <div class="tank-status-message">
+
+                            <span class="message-icon">!</span>
+
+                            <div>
+                                <strong>Approaching safe limit</strong>
+                                <p>
+                                    8% remaining before the configured
+                                    limit is reached.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BOTTOM DASHBOARD -->
+                <div class="dashboard-bottom-grid">
+
+                    <!-- Recent Readings -->
+                    <div class="panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+                                <h2>Recent Sensor Readings</h2>
+                                <p>Latest recorded sediment values</p>
+                            </div>
+
+                            <button
+                                class="link-button"
+                                data-page-link="records">
+                                View all →
+                            </button>
+
+                        </div>
+
+                        <div class="table-wrapper">
+
+                            <table>
+
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Sediment</th>
+                                        <th>Limit</th>
+                                        <th>Status</th>
+                                        <th>Supply</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="dashboardTableBody">
+
+                                    <tr>
+                                        <td>09:20 AM</td>
+                                        <td>
+                                            <strong>62%</strong>
+                                        </td>
+                                        <td>70%</td>
+                                        <td>
+                                            <span class="state-badge warning">
+                                                Warning
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="supply-pill on">
+                                                ON
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>09:15 AM</td>
+                                        <td>
+                                            <strong>65%</strong>
+                                        </td>
+                                        <td>70%</td>
+                                        <td>
+                                            <span class="state-badge warning">
+                                                Warning
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="supply-pill on">
+                                                ON
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>09:10 AM</td>
+                                        <td>
+                                            <strong>71%</strong>
+                                        </td>
+                                        <td>70%</td>
+                                        <td>
+                                            <span class="state-badge critical">
+                                                Critical
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="supply-pill off">
+                                                OFF
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Latest Alert -->
+                    <div class="panel latest-alert-panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+                                <h2>Latest Alert</h2>
+                                <p>Most recent limit event</p>
+                            </div>
+
+                            <span class="alert-symbol-large">
+                                ⚠
+                            </span>
+
+                        </div>
+
+                        <div class="latest-alert-content">
+
+                            <div class="critical-reading">
+                                <strong>71%</strong>
+                                <span>sediment</span>
+                            </div>
+
+                            <div class="alert-divider"></div>
+
+                            <div class="alert-info">
+
+                                <strong>
+                                    Sediment level exceeded
+                                </strong>
+
+                                <p>
+                                    The recorded level is above the
+                                    configured 70% safe limit.
+                                </p>
+
+                                <small>
+                                    01 Sep 2026 · 09:10 AM
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <button
+                            class="secondary-button full-width"
+                            data-page-link="alerts">
+                            View All Alerts
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SEDIMENT MONITORING
+                 ================================================= -->
+
+            <section class="page" id="monitoring">
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="breadcrumb">
+                            Overview <span>/</span> Sediment Monitoring
+                        </div>
+
+                        <h1>Sediment Monitoring</h1>
+
+                        <p>
+                            Monitor and record the current tank sediment level.
+                        </p>
+                    </div>
+
+                    <div class="live-indicator">
+                        <span class="live-dot"></span>
+                        Sensor active
+                    </div>
+
+                </div>
+
+
+                <div class="monitoring-overview">
+
+                    <div class="panel current-reading-panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+                                <h2>Current Sediment Level</h2>
+                                <p>Latest sensor reading</p>
+                            </div>
+
+                            <span class="state-badge warning">
+                                WARNING
+                            </span>
+
+                        </div>
+
+                        <div class="big-reading">
+                            <strong id="monitoringValue">62</strong>
+                            <span>%</span>
+                        </div>
+
+                        <div class="level-bar">
+
+                            <div
+                                class="level-fill warning-progress"
+                                style="width:62%;">
+                            </div>
+
+                            <div
+                                class="level-limit"
+                                style="left:70%;">
+                            </div>
+
+                        </div>
+
+                        <div class="level-bar-labels">
+                            <span>0%</span>
+                            <span>Safe limit 70%</span>
+                            <span>100%</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+                                <h2>Reading Status</h2>
+                                <p>Current monitoring information</p>
+                            </div>
+
+                        </div>
+
+                        <div class="info-list">
+
+                            <div class="info-row">
+                                <span>Current level</span>
+                                <strong>62%</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Safe limit</span>
+                                <strong>70%</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Remaining range</span>
+                                <strong>8%</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Water supply</span>
+                                <strong class="success-text">
+                                    ON
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <h2>Recorded Sediment Readings</h2>
+                            <p>Sensor readings stored by the system</p>
+                        </div>
+
+                        <select id="monitorFilter">
+                            <option value="all">All readings</option>
+                            <option value="normal">Normal</option>
+                            <option value="high">Warning / Critical</option>
+                        </select>
+
+                    </div>
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Sediment</th>
+                                    <th>Safe Limit</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:20 AM</td>
+                                    <td><strong>62%</strong></td>
+                                    <td>70%</td>
+                                    <td>
+                                        <span class="state-badge warning">
+                                            Warning
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:15 AM</td>
+                                    <td><strong>65%</strong></td>
+                                    <td>70%</td>
+                                    <td>
+                                        <span class="state-badge warning">
+                                            Warning
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:10 AM</td>
+                                    <td><strong>71%</strong></td>
+                                    <td>70%</td>
+                                    <td>
+                                        <span class="state-badge critical">
+                                            Critical
+                                        </span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SEDIMENT LIMIT
+                 ================================================= -->
+
+            <section class="page" id="limit">
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="breadcrumb">
+                            Control <span>/</span> Sediment Limit
+                        </div>
+
+                        <h1>Sediment Limit</h1>
+
+                        <p>
+                            Configure the safe sediment level limit.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="settings-grid">
+
+                    <div class="panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+                                <h2>Safe Sediment Level</h2>
+                                <p>
+                                    Current configured threshold
+                                </p>
+                            </div>
+
+                            <span class="state-badge neutral">
+                                CONFIGURED
+                            </span>
+
+                        </div>
+
+                        <form id="limitForm">
+
+                            <label for="limitInput">
+                                Safe sediment level
+                            </label>
+
+                            <div class="percentage-input">
+
+                                <input
+                                    type="number"
+                                    id="limitInput"
+                                    value="70"
+                                    min="1"
+                                    max="100">
+
+                                <span>%</span>
+
+                            </div>
+
+                            <p class="field-help">
+                                The configured value is used to identify
+                                when sediment becomes too high.
+                            </p>
+
+                            <button
+                                type="submit"
+                                class="primary-button">
+                                Save Sediment Limit
+                            </button>
+
+                        </form>
+
+                        <div
+                            class="form-message"
+                            id="limitMessage">
+                        </div>
+
+                    </div>
+
+
+                    <div class="panel limit-preview">
+
+                        <div class="panel-heading">
+
+                            <div>
+                                <h2>Limit Preview</h2>
+                                <p>Current sediment compared with limit</p>
+                            </div>
+
+                        </div>
+
+                        <div class="limit-display">
+
+                            <strong id="currentLimit">70</strong>
+                            <span>%</span>
+
+                        </div>
+
+                        <div class="limit-visual">
+
+                            <div
+                                class="limit-current"
+                                style="width:62%;">
+                            </div>
+
+                            <div
+                                class="limit-threshold"
+                                style="left:70%;">
+                            </div>
+
+                        </div>
+
+                        <div class="limit-preview-footer">
+
+                            <span>
+                                Current: <strong>62%</strong>
+                            </span>
+
+                            <span>
+                                Limit: <strong>70%</strong>
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 ALERTS
+                 ================================================= -->
+
+            <section class="page" id="alerts">
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="breadcrumb">
+                            Control <span>/</span> Alerts
+                        </div>
+
+                        <h1>Alerts</h1>
+
+                        <p>
+                            Sediment-level alerts generated by the system.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="alert-stat-grid">
+
+                    <div class="alert-stat">
+                        <span>Total alerts</span>
+                        <strong>2</strong>
+                    </div>
+
+                    <div class="alert-stat critical-stat">
+                        <span>Latest sediment</span>
+                        <strong>71%</strong>
+                    </div>
+
+                    <div class="alert-stat">
+                        <span>Safe limit</span>
+                        <strong>70%</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <h2>Alert History</h2>
+                            <p>
+                                Alerts generated when the safe limit is exceeded
+                            </p>
+                        </div>
+
+                        <select class="filter-select">
+                            <option>All alerts</option>
+                            <option>Exceeded</option>
+                        </select>
+
+                    </div>
+
+
+                    <div class="alert-list">
+
+                        <div class="alert-row">
+
+                            <div class="alert-icon critical">
+                                ⚠
+                            </div>
+
+                            <div class="alert-details">
+
+                                <strong>
+                                    Sediment level exceeded
+                                </strong>
+
+                                <p>
+                                    Sediment reached 71%, exceeding the
+                                    configured 70% limit.
+                                </p>
+
+                                <small>
+                                    01 Sep 2026 · 09:10 AM
+                                </small>
+
+                            </div>
+
+                            <span class="state-badge critical">
+                                CRITICAL
+                            </span>
+
+                        </div>
+
+
+                        <div class="alert-row">
+
+                            <div class="alert-icon critical">
+                                ⚠
+                            </div>
+
+                            <div class="alert-details">
+
+                                <strong>
+                                    Sediment level exceeded
+                                </strong>
+
+                                <p>
+                                    Sediment reached 73%, exceeding the
+                                    configured 70% limit.
+                                </p>
+
+                                <small>
+                                    01 Sep 2026 · 08:45 AM
+                                </small>
+
+                            </div>
+
+                            <span class="state-badge critical">
+                                CRITICAL
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 WATER SUPPLY
+                 ================================================= -->
+
+            <section class="page" id="supply">
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="breadcrumb">
+                            Control <span>/</span> Water Supply
+                        </div>
+
+                        <h1>Water Supply</h1>
+
+                        <p>
+                            Current automatic water supply control status.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="supply-overview">
+
+                    <div class="panel supply-status-panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+                                <h2>Current Water Supply</h2>
+                                <p>Automatic supply control</p>
+                            </div>
+
+                            <span class="state-badge normal">
+                                ON
+                            </span>
+
+                        </div>
+
+                        <div class="supply-large">
+
+                            <div class="supply-large-icon">
+                                💧
+                            </div>
+
+                            <strong id="supplyPageStatus">
+                                Water Supply ON
+                            </strong>
+
+                            <p>
+                                Sediment level is currently below the
+                                configured safe limit.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+                                <h2>Supply Condition</h2>
+                                <p>Current control information</p>
+                            </div>
+
+                        </div>
+
+                        <div class="info-list">
+
+                            <div class="info-row">
+                                <span>Sediment level</span>
+                                <strong>62%</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Safe limit</span>
+                                <strong>70%</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Supply status</span>
+                                <strong class="success-text">
+                                    ON
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <h2>Water Supply Records</h2>
+                            <p>Recorded supply status</p>
+                        </div>
+
+                    </div>
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Sediment</th>
+                                    <th>Supply</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:20 AM</td>
+                                    <td>62%</td>
+                                    <td>
+                                        <span class="supply-pill on">
+                                            ON
+                                        </span>
+                                    </td>
+                                    <td>Below safe limit</td>
+                                </tr>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:10 AM</td>
+                                    <td>71%</td>
+                                    <td>
+                                        <span class="supply-pill off">
+                                            OFF
+                                        </span>
+                                    </td>
+                                    <td>Limit exceeded</td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 RECORDS
+                 ================================================= -->
+
+            <section class="page" id="records">
+
+                <div class="page-heading">
+
+                    <div>
+                        <div class="breadcrumb">
+                            Data <span>/</span> Records
+                        </div>
+
+                        <h1>Records</h1>
+
+                        <p>
+                            Stored sensor readings, alerts and supply status.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="record-tabs">
+
+                    <button
+                        class="record-tab active"
+                        data-record="readings">
+                        Sensor Readings
+                    </button>
+
+                    <button
+                        class="record-tab"
+                        data-record="alerts-records">
+                        Alerts
+                    </button>
+
+                    <button
+                        class="record-tab"
+                        data-record="supply-records">
+                        Supply Status
+                    </button>
+
+                </div>
+
+
+                <div class="panel record-content" id="readings">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <h2>Sensor Readings</h2>
+                            <p>Stored sediment sensor readings</p>
+                        </div>
+
+                        <input
+                            type="text"
+                            id="recordSearch"
+                            class="search-input"
+                            placeholder="Search readings...">
+
+                    </div>
+
+                    <div class="table-wrapper">
+
+                        <table id="recordsTable">
+
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Sediment</th>
+                                    <th>Safe Limit</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:20 AM</td>
+                                    <td><strong>62%</strong></td>
+                                    <td>70%</td>
+                                    <td>
+                                        <span class="state-badge warning">
+                                            Warning
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:15 AM</td>
+                                    <td><strong>65%</strong></td>
+                                    <td>70%</td>
+                                    <td>
+                                        <span class="state-badge warning">
+                                            Warning
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:10 AM</td>
+                                    <td><strong>71%</strong></td>
+                                    <td>70%</td>
+                                    <td>
+                                        <span class="state-badge critical">
+                                            Critical
+                                        </span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="panel record-content hidden-record"
+                    id="alerts-records">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <h2>Alert Records</h2>
+                            <p>Stored sediment alerts</p>
+                        </div>
+
+                    </div>
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Sediment</th>
+                                    <th>Limit</th>
+                                    <th>Alert</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:10 AM</td>
+                                    <td>71%</td>
+                                    <td>70%</td>
+                                    <td>
+                                        <span class="state-badge critical">
+                                            Exceeded
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 08:45 AM</td>
+                                    <td>73%</td>
+                                    <td>70%</td>
+                                    <td>
+                                        <span class="state-badge critical">
+                                            Exceeded
+                                        </span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="panel record-content hidden-record"
+                    id="supply-records">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <h2>Water Supply Status</h2>
+                            <p>Stored supply status records</p>
+                        </div>
+
+                    </div>
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Sediment</th>
+                                    <th>Supply Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:20 AM</td>
+                                    <td>62%</td>
+                                    <td>
+                                        <span class="supply-pill on">
+                                            ON
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>01 Sep 2026 · 09:10 AM</td>
+                                    <td>71%</td>
+                                    <td>
+                                        <span class="supply-pill off">
+                                            OFF
+                                        </span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
