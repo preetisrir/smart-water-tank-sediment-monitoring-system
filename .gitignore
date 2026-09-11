@@ -1,2 +1,7 @@
 .env
-.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+tank_system.db
+tank_system.db-shm
+tank_system.db-wal
