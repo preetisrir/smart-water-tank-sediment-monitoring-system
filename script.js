@@ -263,7 +263,7 @@ async function fetchLatestTelemetry() {
 
         const connText = document.getElementById("connectionStatusText");
         const connLatency = document.getElementById("connectionLatencyText");
-        if (connText) connText.textContent = "Connected to FastAPI";
+        if (connText) connText.textContent = data.database_type ? `Connected: ${data.database_type}` : "Connected to Supabase PostgreSQL";
         if (connLatency) connLatency.textContent = `Sync OK (${new Date().toLocaleTimeString()})`;
 
         const lastUpdated = document.getElementById("lastUpdatedTime");

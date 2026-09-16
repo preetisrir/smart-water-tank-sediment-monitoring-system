@@ -1,0 +1,8 @@
+{
+  "name": "SmartTank",
+  "description": "Smart Water Tank Sediment Monitoring & Automatic Control System",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
