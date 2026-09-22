@@ -937,6 +937,145 @@
                     </div>
                 </div>
 
+                <!-- AI Operational Intelligence & Diagnostic Advisor Panel -->
+                <div class="panel ai-intelligence-panel" id="panelAiDiagnostics">
+                    <div class="panel-heading">
+                        <div class="ai-title-wrap">
+                            <div class="ai-badge-header">
+                                <span class="ai-sparkle-icon">✨</span>
+                                <h2>AI Operational Intelligence & Diagnostic Advisor</h2>
+                            </div>
+                            <p>Automated sediment accumulation analysis, predictive contamination risk, and valve actuation recommendations powered by Gemini.</p>
+                        </div>
+                        <div class="ai-panel-actions">
+                            <span class="ai-status-pill ready" id="aiReportStatusBadge">AI Ready</span>
+                            <button class="primary-button ai-primary-btn" id="btnGenerateAiReport">
+                                <span class="btn-icon">⚡</span>
+                                <span>Generate Diagnostic Report</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Assistant Query / Operator Chat Bar -->
+                    <div class="ai-query-section">
+                        <div class="ai-query-header">
+                            <strong>Ask AI Tank Analyst</strong>
+                            <small>Query current telemetry trends, sediment headroom, or maintenance advice</small>
+                        </div>
+                        <div class="ai-prompt-chips">
+                            <button type="button" class="ai-chip-btn" data-query="Analyze current contamination risk and safety threshold headroom.">
+                                🔍 Contamination Risk Analysis
+                            </button>
+                            <button type="button" class="ai-chip-btn" data-query="Evaluate automatic valve shutoff events and water supply reliability.">
+                                💧 Valve & Supply Safety
+                            </button>
+                            <button type="button" class="ai-chip-btn" data-query="Provide recommended sediment flushing and tank cleaning schedule based on historical readings.">
+                                🛠 Maintenance Schedule Advisory
+                            </button>
+                        </div>
+                        <form id="aiInquiryForm" class="ai-inquiry-form" onsubmit="return false;">
+                            <input type="text" id="aiInquiryInput" class="ai-inquiry-input" placeholder="Type a question regarding sediment telemetry, safety limits, or water shutoffs...">
+                            <button type="submit" id="btnSubmitAiInquiry" class="secondary-button ai-inquiry-btn">
+                                <span>Ask AI</span>
+                            </button>
+                        </form>
+                        
+                        <!-- Inquiry Loading & Response Box -->
+                        <div id="aiInquiryLoading" class="ai-inquiry-loading" style="display: none;">
+                            <div class="spinner-small"></div>
+                            <span>Analyzing telemetry with Gemini 3.8 Flash...</span>
+                        </div>
+                        <div id="aiInquiryResultBox" class="ai-inquiry-result-box" style="display: none;">
+                            <div class="ai-inquiry-result-header">
+                                <span class="ai-inquiry-tag">AI Analyst Response</span>
+                                <button type="button" class="btn-text-action" id="btnCloseInquiryResult">Clear</button>
+                            </div>
+                            <div id="aiInquiryResultText" class="ai-inquiry-result-text"></div>
+                        </div>
+                    </div>
+
+                    <!-- Diagnostic Report Main Body -->
+                    <div class="ai-report-body">
+                        <!-- Ready / Empty Initial State -->
+                        <div id="aiReportEmpty" class="ai-empty-state">
+                            <div class="ai-empty-icon">📊</div>
+                            <h3>Telemetry Intelligence Awaiting Generation</h3>
+                            <p>Click <strong>"Generate Diagnostic Report"</strong> to evaluate current sediment metrics, historical thresholds, safety alerts, and automated supply valve events.</p>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div id="aiReportLoading" class="ai-loading-state" style="display: none;">
+                            <div class="ai-spinner"></div>
+                            <h3>Generating AI Diagnostic Report...</h3>
+                            <p>Synthesizing time-series readings, safety compliance percentages, and valve transitions via Gemini.</p>
+                        </div>
+
+                        <!-- Error State -->
+                        <div id="aiReportError" class="ai-error-state" style="display: none;">
+                            <div class="ai-error-icon">⚠️</div>
+                            <h3>Diagnostic Generation Encountered an Error</h3>
+                            <p id="aiReportErrorText">Unable to complete analysis. Please check system connectivity and retry.</p>
+                            <button class="secondary-button" id="btnRetryAiReport">Retry Analysis</button>
+                        </div>
+
+                        <!-- Completed Report Content -->
+                        <div id="aiReportResult" class="ai-report-result" style="display: none;">
+                            <!-- Risk Ribbon -->
+                            <div class="ai-risk-ribbon">
+                                <div class="ai-risk-metric">
+                                    <span class="ai-risk-label">Contamination Risk Level</span>
+                                    <div class="ai-risk-row">
+                                        <span class="ai-risk-badge" id="aiReportRiskLevel">LOW</span>
+                                        <div class="ai-risk-bar-wrap">
+                                            <div class="ai-risk-bar-fill" id="aiReportRiskProgress" style="width: 25%;"></div>
+                                        </div>
+                                        <strong class="ai-risk-score" id="aiReportRiskScore">25/100</strong>
+                                    </div>
+                                </div>
+                                <div class="ai-report-meta">
+                                    <span class="ai-meta-timestamp" id="aiReportTimestamp">Generated just now</span>
+                                    <button class="secondary-button small-btn" id="btnCopyAiReport" title="Copy report text">
+                                        📋 Copy Report
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Executive Summary -->
+                            <div class="ai-card ai-summary-card">
+                                <h4>Executive Operational Summary</h4>
+                                <p id="aiReportExecutiveSummary">--</p>
+                            </div>
+
+                            <!-- Two Column Analysis -->
+                            <div class="ai-two-col-grid">
+                                <div class="ai-card">
+                                    <div class="ai-card-header">
+                                        <span class="ai-col-icon">📈</span>
+                                        <h4>Sediment Trend & Fluctuation Dynamics</h4>
+                                    </div>
+                                    <p id="aiReportSedimentTrend">--</p>
+                                </div>
+
+                                <div class="ai-card">
+                                    <div class="ai-card-header">
+                                        <span class="ai-col-icon">🛡️</span>
+                                        <h4>Supply Valve Safety & Actuation Health</h4>
+                                    </div>
+                                    <p id="aiReportSupplySafety">--</p>
+                                </div>
+                            </div>
+
+                            <!-- Actionable Recommendations -->
+                            <div class="ai-card ai-recs-card">
+                                <h4>Actionable Operational Recommendations</h4>
+                                <ul class="ai-recs-list" id="aiReportRecommendationsList">
+                                    <!-- Populated via script.js -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Export Reports Section -->
                 <div class="panel">
                     <div class="panel-heading">

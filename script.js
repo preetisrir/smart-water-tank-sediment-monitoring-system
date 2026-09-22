@@ -30,7 +30,7 @@ const appState = {
 // =========================================================
 // API CLIENT HELPER
 // =========================================================
-async function apiRequest(endpoint, method = "GET", body = null, requiresAuth = false) {
+async function apiRequest(endpoint, method = "GET", body = null, requiresAuth = false, retryCount = 2) {
     const headers = {
         "Content-Type": "application/json"
     };
@@ -64,15 +64,34 @@ async function apiRequest(endpoint, method = "GET", body = null, requiresAuth = 
             throw new Error("Unauthorized");
         }
 
+        const contentType = response.headers.get("content-type") || "";
+        const isJson = contentType.includes("application/json");
+
         if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            const errMsg = errData.detail || `Request failed with status ${response.status}`;
+            let errMsg = `Request failed with status ${response.status}`;
+            if (isJson) {
+                const errData = await response.json().catch(() => ({}));
+                if (errData && errData.detail) errMsg = errData.detail;
+            }
             throw new Error(errMsg);
+        }
+
+        if (!isJson) {
+            // Received HTML (such as reverse proxy warmup page during server reload)
+            if (method === "GET" && retryCount > 0) {
+                await new Promise(resolve => setTimeout(resolve, 600));
+                return apiRequest(endpoint, method, body, requiresAuth, retryCount - 1);
+            }
+            throw new Error("Backend server is warming up or returned non-JSON response.");
         }
 
         return await response.json();
     } catch (err) {
-        console.error(`API Error on ${method} ${endpoint}:`, err);
+        if (method === "GET" && retryCount > 0) {
+            await new Promise(resolve => setTimeout(resolve, 600));
+            return apiRequest(endpoint, method, body, requiresAuth, retryCount - 1);
+        }
+        console.warn(`[API] ${method} ${endpoint}:`, err.message || err);
         throw err;
     }
 }
@@ -951,6 +970,175 @@ async function loadReportsSummary() {
 }
 
 // =========================================================
+// AI OPERATIONAL INTELLIGENCE & DIAGNOSTICS
+// =========================================================
+let currentAiReportData = null;
+
+async function generateAIDiagnosticReportUI() {
+    const btn = document.getElementById("btnGenerateAiReport");
+    const statusBadge = document.getElementById("aiReportStatusBadge");
+    const emptyEl = document.getElementById("aiReportEmpty");
+    const loadingEl = document.getElementById("aiReportLoading");
+    const errorEl = document.getElementById("aiReportError");
+    const resultEl = document.getElementById("aiReportResult");
+    const errorTextEl = document.getElementById("aiReportErrorText");
+
+    if (emptyEl) emptyEl.style.display = "none";
+    if (errorEl) errorEl.style.display = "none";
+    if (resultEl) resultEl.style.display = "none";
+    if (loadingEl) loadingEl.style.display = "block";
+
+    if (btn) btn.disabled = true;
+    if (statusBadge) {
+        statusBadge.textContent = "Analyzing...";
+        statusBadge.className = "ai-status-pill generating";
+    }
+
+    try {
+        const report = await apiRequest("/api/ai/diagnostics", "POST");
+        currentAiReportData = report;
+
+        // Populate fields
+        const riskLevelEl = document.getElementById("aiReportRiskLevel");
+        const riskScoreEl = document.getElementById("aiReportRiskScore");
+        const riskProgressEl = document.getElementById("aiReportRiskProgress");
+        const execSummaryEl = document.getElementById("aiReportExecutiveSummary");
+        const trendEl = document.getElementById("aiReportSedimentTrend");
+        const safetyEl = document.getElementById("aiReportSupplySafety");
+        const recsListEl = document.getElementById("aiReportRecommendationsList");
+        const timestampEl = document.getElementById("aiReportTimestamp");
+
+        const riskClass = (report.risk_level || "low").toLowerCase();
+        if (riskLevelEl) {
+            riskLevelEl.textContent = report.risk_level;
+            riskLevelEl.className = `ai-risk-badge ${riskClass}`;
+        }
+
+        if (riskScoreEl) {
+            riskScoreEl.textContent = `${report.risk_score}/100`;
+        }
+
+        if (riskProgressEl) {
+            riskProgressEl.style.width = `${Math.min(100, Math.max(5, report.risk_score))}%`;
+            if (report.risk_score > 70) {
+                riskProgressEl.style.background = "var(--critical)";
+            } else if (report.risk_score > 40) {
+                riskProgressEl.style.background = "var(--warning)";
+            } else {
+                riskProgressEl.style.background = "var(--normal)";
+            }
+        }
+
+        if (timestampEl) {
+            const timeStr = report.generated_at ? new Date(report.generated_at).toLocaleTimeString() : "Just now";
+            timestampEl.textContent = `Generated: ${timeStr} (${report.source === "gemini-3.8-flash" ? "Gemini 3.8 Flash" : "Telemetry Diagnostics"})`;
+        }
+
+        if (execSummaryEl) execSummaryEl.textContent = report.executive_summary;
+        if (trendEl) trendEl.textContent = report.sediment_trend;
+        if (safetyEl) safetyEl.textContent = report.supply_safety_assessment;
+
+        if (recsListEl) {
+            if (Array.isArray(report.actionable_recommendations) && report.actionable_recommendations.length > 0) {
+                recsListEl.innerHTML = report.actionable_recommendations.map(r => `<li>${escapeHtml(r)}</li>`).join("");
+            } else {
+                recsListEl.innerHTML = `<li>Continue regular sediment sensor monitoring and safe limit compliance checks.</li>`;
+            }
+        }
+
+        if (loadingEl) loadingEl.style.display = "none";
+        if (resultEl) resultEl.style.display = "flex";
+
+        if (statusBadge) {
+            statusBadge.textContent = "AI Analysis Complete";
+            statusBadge.className = "ai-status-pill ready";
+        }
+        showToast("AI Diagnostic report generated successfully.", "success");
+    } catch (err) {
+        if (loadingEl) loadingEl.style.display = "none";
+        if (errorEl) errorEl.style.display = "block";
+        if (errorTextEl) errorTextEl.textContent = err.message || "Failed to generate diagnostic report.";
+
+        if (statusBadge) {
+            statusBadge.textContent = "Error";
+            statusBadge.className = "ai-status-pill";
+        }
+        showToast("Error generating AI report: " + err.message, "error");
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function handleAIInquiry(customQuery) {
+    const inputEl = document.getElementById("aiInquiryInput");
+    const query = (customQuery || (inputEl ? inputEl.value : "")).trim();
+
+    if (!query) {
+        showToast("Please enter an inquiry for the AI Analyst.", "warning");
+        if (inputEl) inputEl.focus();
+        return;
+    }
+
+    if (inputEl && !customQuery) {
+        inputEl.value = "";
+    }
+
+    const loadingEl = document.getElementById("aiInquiryLoading");
+    const resultBox = document.getElementById("aiInquiryResultBox");
+    const resultText = document.getElementById("aiInquiryResultText");
+    const submitBtn = document.getElementById("btnSubmitAiInquiry");
+
+    if (loadingEl) loadingEl.style.display = "flex";
+    if (resultBox) resultBox.style.display = "none";
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+        const data = await apiRequest("/api/ai/inquiry", "POST", { query });
+        if (resultText) resultText.textContent = data.answer;
+        if (resultBox) resultBox.style.display = "block";
+    } catch (err) {
+        if (resultText) resultText.textContent = "AI Analyst inquiry failed: " + (err.message || "Unknown error");
+        if (resultBox) resultBox.style.display = "block";
+    } finally {
+        if (loadingEl) loadingEl.style.display = "none";
+        if (submitBtn) submitBtn.disabled = false;
+    }
+}
+
+function copyCurrentAiReport() {
+    if (!currentAiReportData) {
+        showToast("No report to copy.", "warning");
+        return;
+    }
+    const r = currentAiReportData;
+    const recs = (r.actionable_recommendations || []).map((x, i) => `${i + 1}. ${x}`).join("\n");
+    const text = `SMARTTANK AI OPERATIONAL DIAGNOSTIC REPORT
+Generated: ${new Date(r.generated_at).toLocaleString()}
+Contamination Risk Level: ${r.risk_level} (Score: ${r.risk_score}/100)
+
+EXECUTIVE SUMMARY:
+${r.executive_summary}
+
+SEDIMENT DYNAMICS:
+${r.sediment_trend}
+
+VALVE & WATER SUPPLY ASSESSMENT:
+${r.supply_safety_assessment}
+
+RECOMMENDATIONS:
+${recs}
+`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+            .then(() => showToast("AI Diagnostic report copied to clipboard.", "success"))
+            .catch(() => showToast("Failed to copy report to clipboard.", "error"));
+    } else {
+        showToast("Clipboard copy not supported in this browser context.", "warning");
+    }
+}
+
+// =========================================================
 // HELPER UTILITIES
 // =========================================================
 function formatTimestamp(isoStr) {
@@ -1130,6 +1318,56 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 300));
     }
 
+    // AI Diagnostics & Operational Intelligence wiring
+    const btnGenerateAi = document.getElementById("btnGenerateAiReport");
+    if (btnGenerateAi) {
+        btnGenerateAi.addEventListener("click", () => generateAIDiagnosticReportUI());
+    }
+
+    const btnRetryAi = document.getElementById("btnRetryAiReport");
+    if (btnRetryAi) {
+        btnRetryAi.addEventListener("click", () => generateAIDiagnosticReportUI());
+    }
+
+    const btnCopyAi = document.getElementById("btnCopyAiReport");
+    if (btnCopyAi) {
+        btnCopyAi.addEventListener("click", () => copyCurrentAiReport());
+    }
+
+    const aiInquiryForm = document.getElementById("aiInquiryForm");
+    if (aiInquiryForm) {
+        aiInquiryForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            handleAIInquiry();
+        });
+    }
+
+    const btnSubmitAiInquiry = document.getElementById("btnSubmitAiInquiry");
+    if (btnSubmitAiInquiry) {
+        btnSubmitAiInquiry.addEventListener("click", (e) => {
+            e.preventDefault();
+            handleAIInquiry();
+        });
+    }
+
+    const btnCloseInquiry = document.getElementById("btnCloseInquiryResult");
+    if (btnCloseInquiry) {
+        btnCloseInquiry.addEventListener("click", () => {
+            const box = document.getElementById("aiInquiryResultBox");
+            if (box) box.style.display = "none";
+        });
+    }
+
+    const promptChips = document.querySelectorAll(".ai-chip-btn");
+    promptChips.forEach(chip => {
+        chip.addEventListener("click", function() {
+            const q = this.getAttribute("data-query");
+            const input = document.getElementById("aiInquiryInput");
+            if (input) input.value = q;
+            handleAIInquiry(q);
+        });
+    });
+
     // Initial setup
     verifyStoredAuth();
     fetchLatestTelemetry();
@@ -1162,6 +1400,9 @@ window.app = {
     deleteReadingRecord,
     deleteSupplyRecord,
     toggleSupply,
+    generateAIDiagnosticReport: generateAIDiagnosticReportUI,
+    askAiAnalyst: handleAIInquiry,
+    copyAiReport: copyCurrentAiReport,
     refreshAll: () => {
         fetchLatestTelemetry();
         loadRecentReadings();

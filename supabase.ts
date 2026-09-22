@@ -21,6 +21,7 @@ export interface SensorReading {
 
 export interface Alert {
   id: number;
+  sensor_reading_id?: number | null;
   timestamp: string;
   sediment_level: number;
   limit_at_time: number;
@@ -33,6 +34,7 @@ export interface Alert {
 
 export interface SupplyLog {
   id: number;
+  sensor_reading_id?: number | null;
   timestamp: string;
   status: "ON" | "OFF";
   sediment_level: number;
@@ -127,7 +129,9 @@ export function getSupabaseClient(): SupabaseClient | null {
 
   if (!supabaseInstance && !supabaseInitialized) {
     supabaseInitialized = true;
-    const url = process.env.SUPABASE_URL!.trim();
+    const rawUrl = process.env.SUPABASE_URL!.trim();
+    // Normalize url by stripping any accidental /rest/v1 or trailing slashes
+    const url = rawUrl.replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "");
     const key = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY)!.trim();
     try {
       supabaseInstance = createClient(url, key, {
@@ -137,6 +141,10 @@ export function getSupabaseClient(): SupabaseClient | null {
         }
       });
       console.log(`[Supabase] Initialized client for ${url}`);
+      // Migrate existing records to Supabase asynchronously
+      migrateExistingDataToSupabase(supabaseInstance).catch(e => {
+        console.warn("[Supabase] Auto-migration notice:", e.message || e);
+      });
     } catch (err) {
       console.error("[Supabase] Failed to initialize Supabase client:", err);
       supabaseInstance = null;
@@ -144,6 +152,84 @@ export function getSupabaseClient(): SupabaseClient | null {
   }
 
   return supabaseInstance;
+}
+
+/**
+ * Ensures any existing baseline records (users, settings, supply state, telemetry, logs)
+ * are migrated into the connected Supabase tables without data loss.
+ */
+export async function migrateExistingDataToSupabase(client: SupabaseClient): Promise<void> {
+  try {
+    // 1. Ensure system_settings has singleton row
+    const { count: settingsCount } = await client.from("system_settings").select("*", { count: "exact", head: true });
+    if (settingsCount === 0 || settingsCount === null) {
+      await client.from("system_settings").upsert({
+        id: inMemoryStore.settings.id,
+        safe_limit: inMemoryStore.settings.safe_limit,
+        updated_at: inMemoryStore.settings.updated_at,
+        updated_by: inMemoryStore.settings.updated_by
+      });
+    }
+
+    // 2. Ensure water_supply_state has singleton row
+    const { count: supplyStateCount } = await client.from("water_supply_state").select("*", { count: "exact", head: true });
+    if (supplyStateCount === 0 || supplyStateCount === null) {
+      await client.from("water_supply_state").upsert({
+        id: inMemoryStore.supplyState.id,
+        status: inMemoryStore.supplyState.status,
+        control_mode: inMemoryStore.supplyState.control_mode,
+        updated_at: inMemoryStore.supplyState.updated_at,
+        updated_by: inMemoryStore.supplyState.updated_by
+      });
+    }
+
+    // 3. Ensure users are seeded
+    const { count: userCount } = await client.from("users").select("*", { count: "exact", head: true });
+    if (userCount === 0 || userCount === null) {
+      for (const u of inMemoryStore.users) {
+        await client.from("users").upsert({
+          id: u.id,
+          username: u.username,
+          password_hash: u.passwordHash,
+          role: u.role,
+          full_name: u.fullName,
+          created_at: u.createdAt
+        });
+      }
+    }
+
+    // 4. Ensure initial sensor readings exist
+    const { count: readingsCount } = await client.from("sensor_readings").select("*", { count: "exact", head: true });
+    if (readingsCount === 0 || readingsCount === null) {
+      const readingsToInsert = inMemoryStore.sensorReadings.map(r => ({
+        timestamp: r.timestamp,
+        sediment_level: r.sediment_level,
+        limit_at_time: r.limit_at_time,
+        status: r.status,
+        supply_status: r.supply_status
+      }));
+      if (readingsToInsert.length > 0) {
+        await client.from("sensor_readings").insert(readingsToInsert);
+      }
+    }
+
+    // 5. Ensure initial supply logs exist
+    const { count: supplyLogsCount } = await client.from("supply_logs").select("*", { count: "exact", head: true });
+    if (supplyLogsCount === 0 || supplyLogsCount === null) {
+      const logsToInsert = inMemoryStore.supplyLogs.map(l => ({
+        timestamp: l.timestamp,
+        status: l.status,
+        sediment_level: l.sediment_level,
+        reason: l.reason,
+        triggered_by: l.triggered_by
+      }));
+      if (logsToInsert.length > 0) {
+        await client.from("supply_logs").insert(logsToInsert);
+      }
+    }
+  } catch (err: any) {
+    console.warn("[Supabase] Data migration warning (tables may need to be created first using supabase_schema.sql):", err.message || err);
+  }
 }
 
 export async function checkDatabaseHealth(): Promise<{
@@ -175,6 +261,14 @@ export async function checkDatabaseHealth(): Promise<{
   try {
     const { data, error } = await client.from("system_settings").select("*").limit(1);
     if (error) {
+      if (error.code === "PGRST205" || (error.message && error.message.includes("schema cache"))) {
+        return {
+          connected: true,
+          type: "Supabase PostgreSQL (Connected - Schema Pending)",
+          supabaseConfigured: true,
+          message: "Connected to Supabase. Run supabase_schema.sql in Supabase SQL Editor to initialize tables."
+        };
+      }
       return {
         connected: false,
         type: "Supabase PostgreSQL",
@@ -359,6 +453,7 @@ export const db = {
         const { data, error } = await client
           .from("supply_logs")
           .insert({
+            sensor_reading_id: log.sensor_reading_id ?? null,
             timestamp: log.timestamp,
             status: log.status,
             sediment_level: log.sediment_level,
@@ -601,6 +696,7 @@ export const db = {
         const { data, error } = await client
           .from("alerts")
           .insert({
+            sensor_reading_id: alert.sensor_reading_id ?? null,
             timestamp: alert.timestamp,
             sediment_level: alert.sediment_level,
             limit_at_time: alert.limit_at_time,
