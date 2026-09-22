@@ -1,0 +1,110 @@
+{
+  "id": "/",
+  "name": "SmartTank | Sediment Monitoring & Automatic Control",
+  "short_name": "SmartTank",
+  "description": "Smart Water Tank Sediment Monitoring & Automatic Control System with real-time telemetry, automated shutoff, and AI diagnostics.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "theme_color": "#0284c7",
+  "background_color": "#0f172a",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": [
+    "utilities",
+    "productivity",
+    "infrastructure",
+    "business"
+  ],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Live Dashboard",
+      "short_name": "Dashboard",
+      "description": "View live tank sediment levels and valve state",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/pwa-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Monitoring Stream",
+      "short_name": "Monitor",
+      "description": "Stream sediment readings & configure threshold limit",
+      "url": "/#page-monitoring",
+      "icons": [
+        {
+          "src": "/pwa-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Alert Center",
+      "short_name": "Alerts",
+      "description": "View and manage sediment hazard alerts",
+      "url": "/#page-alerts",
+      "icons": [
+        {
+          "src": "/pwa-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "AI Diagnostics",
+      "short_name": "AI Copilot",
+      "description": "AI operational risk & maintenance intelligence",
+      "url": "/#page-ai",
+      "icons": [
+        {
+          "src": "/pwa-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

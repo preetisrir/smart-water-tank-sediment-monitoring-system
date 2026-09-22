@@ -332,13 +332,55 @@ input:checked + .slider:before {
     font-size: 22px;
     cursor: pointer;
     color: var(--text-main);
-    padding: 6px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
     border-radius: var(--radius-sm);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.header-title span {
+.sidebar-close-btn {
+    display: none;
+    background: none;
+    border: 0;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-muted);
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    margin-left: auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: var(--transition);
+}
+
+.sidebar-close-btn:hover {
+    color: var(--critical);
+    background: var(--surface-soft);
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.header-title-full {
+    display: inline;
     font-size: 16px;
     font-weight: 700;
+    color: var(--text-main);
+}
+
+.header-title-short {
+    display: none;
+    font-size: 16px;
+    font-weight: 800;
     color: var(--text-main);
 }
 
@@ -1913,22 +1955,65 @@ tbody tr:hover {
 .toast.error { border-left: 4px solid var(--critical); color: var(--text-main); }
 .toast.warning { border-left: 4px solid var(--warning); color: var(--text-main); }
 
-/* ================= RESPONSIVE DESIGN ================= */
+/* =========================================================
+   COMPREHENSIVE MOBILE RESPONSIVENESS & TOUCH OPTIMIZATIONS
+   Tested across Desktop, Tablet (768-1024px), Mobile (390-430px),
+   and Compact Mobile (320-375px)
+   ========================================================= */
+
+/* Global Touch & Interaction Optimization */
+button, 
+a, 
+input, 
+select, 
+textarea, 
+.nav-item, 
+.record-tab, 
+.preset-btn, 
+.ai-chip-btn,
+.btn-icon-action,
+.toggle-switch {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ================= 1. TABLET BREAKPOINT (max-width: 1024px) ================= */
+@media (max-width: 1024px) {
+    .dashboard-main-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* ================= 2. TABLET & BELOW (max-width: 992px) ================= */
 @media (max-width: 992px) {
     .sidebar {
         transform: translateX(-100%);
+        width: 280px;
+        box-shadow: var(--shadow-xl);
+        will-change: transform;
+        z-index: 200;
     }
 
     .sidebar.mobile-open {
         transform: translateX(0);
     }
 
+    .sidebar-close-btn {
+        display: flex;
+    }
+
     .sidebar-overlay {
         display: none;
         position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(15, 23, 42, 0.4);
-        z-index: 95;
+        top: 0; 
+        left: 0; 
+        right: 0; 
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        z-index: 150;
     }
 
     .sidebar-overlay.active {
@@ -1937,18 +2022,477 @@ tbody tr:hover {
 
     .main-content {
         margin-left: 0;
+        width: 100%;
     }
 
     .menu-button {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .header {
         padding: 0 16px;
+        padding-left: max(16px, env(safe-area-inset-left, 16px));
+        padding-right: max(16px, env(safe-area-inset-right, 16px));
     }
 
     .page-container {
-        padding: 20px 16px;
+        padding: 22px 18px;
+    }
+
+    .monitoring-overview-grid,
+    .settings-grid,
+    .supply-overview-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* ================= 3. MOBILE LANDSCAPE & PHABLET (max-width: 768px) ================= */
+@media (max-width: 768px) {
+    /* Prevent iOS Safari automatic zoom-in on focus by enforcing 16px input font */
+    input, 
+    select, 
+    textarea {
+        font-size: 16px !important;
+    }
+
+    /* Header Compact Mode */
+    .header-title-full {
+        display: none;
+    }
+
+    .header-title-short {
+        display: inline;
+    }
+
+    .header-right {
+        gap: 10px;
+    }
+
+    .notification-button {
+        width: 44px;
+        height: 44px;
+    }
+
+    /* Typography & Heading Scaling */
+    .page-heading {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .page-heading h1 {
+        font-size: 22px;
+        letter-spacing: -0.3px;
+    }
+
+    .page-heading p {
+        font-size: 13px;
+    }
+
+    .live-indicator-badge {
+        font-size: 11.5px;
+        padding: 5px 12px;
+    }
+
+    /* Status & Dashboard Cards */
+    .status-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .status-card {
+        padding: 18px;
+    }
+
+    .metric-row strong {
+        font-size: 28px;
+    }
+
+    /* Panels & General Containers */
+    .panel {
+        padding: 18px 16px;
+        margin-bottom: 20px;
+        border-radius: var(--radius-md);
+    }
+
+    .panel-heading {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .panel-heading h2 {
+        font-size: 16px;
+    }
+
+    /* Responsive Filter & Search Bars */
+    .filter-controls {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .filter-select, 
+    .search-input {
+        width: 100%;
+        min-height: 44px;
+        font-size: 14px;
+    }
+
+    /* Tables: Fluid horizontal scrolling with clear layout */
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--surface-border);
+        border-radius: var(--radius-sm);
+        box-shadow: inset -6px 0 8px -4px rgba(0, 0, 0, 0.06);
+    }
+
+    table {
+        min-width: 580px;
+    }
+
+    th {
+        padding: 10px 12px;
+        font-size: 10.5px;
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 10px 12px;
+        font-size: 12.5px;
+        white-space: nowrap;
+    }
+
+    /* Buttons & Touch Targets */
+    .primary-button, 
+    .secondary-button {
+        min-height: 44px;
+        padding: 10px 16px;
+        font-size: 13.5px;
+    }
+
+    .btn-icon-action {
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        font-size: 16px;
+    }
+
+    /* Tabs & Horizontal Navigation */
+    .record-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        gap: 6px;
+        padding-bottom: 6px;
+    }
+
+    .record-tab {
+        white-space: nowrap;
+        flex-shrink: 0;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+    }
+
+    .pagination-bar {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        text-align: center;
+    }
+
+    .pagination-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .pagination-buttons button {
+        min-height: 44px;
+        min-width: 90px;
+    }
+
+    /* Meter Display Centering */
+    .meter-display-wrap {
+        justify-content: center;
+        text-align: center;
+        gap: 24px;
+    }
+
+    .meter-scale-info {
+        align-items: center;
+    }
+
+    /* Reports Metrics Grid */
+    .report-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .report-metric-card {
+        padding: 16px;
+    }
+
+    .report-metric-val {
+        font-size: 24px;
+    }
+
+    .export-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .export-btn {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    /* AI Diagnostics Panel Responsive */
+    .ai-two-col-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ai-risk-ribbon {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .ai-risk-row {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .ai-risk-bar-wrap {
+        flex: 1;
+        max-width: 180px;
+    }
+
+    .ai-panel-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .ai-prompt-chips {
+        gap: 6px;
+    }
+
+    .ai-chip-btn {
+        min-height: 38px;
+        padding: 8px 12px;
+    }
+}
+
+/* ================= 4. STANDARD & COMPACT MOBILE (max-width: 480px) ================= */
+@media (max-width: 480px) {
+    .header {
+        padding: 0 12px;
+    }
+
+    /* Hide text details in auth badge to fit small screens */
+    .user-auth-badge {
+        padding: 4px 8px;
+        gap: 6px;
+    }
+
+    .user-auth-badge .profile-details {
+        display: none;
+    }
+
+    .auth-action-btn {
+        min-height: 36px;
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+
+    .page-container {
+        padding: 14px 10px;
+    }
+
+    .panel {
+        padding: 14px 12px;
+    }
+
+    /* Status Grid Single Column */
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .status-card {
+        padding: 16px;
+    }
+
+    /* Form Controls Stacking */
+    .input-with-button {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .input-with-button input,
+    .input-with-button button {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .form-actions button {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    /* Alert Cards Stacking */
+    .alert-item-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .alert-left {
+        width: 100%;
+    }
+
+    .alert-actions {
+        width: 100%;
+        display: flex;
+        justify-content: stretch;
+    }
+
+    .alert-actions button {
+        width: 100%;
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    /* Water Supply Override Buttons */
+    .override-btns {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .override-btns button {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    /* AI Inquiry Form */
+    .ai-inquiry-form {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .ai-inquiry-input {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .ai-inquiry-btn {
+        width: 100%;
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    /* Reports Metrics Grid Single Column */
+    .report-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Tank Metrics Legend Single Column */
+    .tank-metrics-legend {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    /* Modal Dialog Responsive */
+    .modal-dialog {
+        width: calc(100% - 24px);
+        margin: 12px auto;
+        max-height: calc(100vh - 24px);
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        padding: 16px 18px;
+    }
+
+    .modal-body {
+        padding: 18px;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+
+    .modal-footer button {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    /* Toast Notification Mobile Positioning */
+    .toast-container {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+    }
+
+    .toast {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+/* ================= 5. ULTRA-COMPACT MOBILE (max-width: 360px) ================= */
+@media (max-width: 360px) {
+    .header-title-short {
+        font-size: 14px;
+    }
+
+    .menu-button {
+        width: 38px;
+        height: 38px;
+    }
+
+    .notification-button {
+        width: 38px;
+        height: 38px;
+    }
+
+    .page-heading h1 {
+        font-size: 19px;
+    }
+
+    .tank-body {
+        width: 170px;
+        height: 210px;
+    }
+
+    .tank-frame {
+        width: 200px;
+    }
+
+    .tank-base {
+        width: 190px;
     }
 }
 
@@ -2373,3 +2917,294 @@ tbody tr:hover {
     color: var(--text-main);
     line-height: 1.5;
 }
+
+/* =========================================================
+   PROGRESSIVE WEB APP (PWA) STYLES & STANDALONE DISPLAY MODE
+   ========================================================= */
+
+/* 1. Header Install Button */
+.header-pwa-install-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: #ffffff;
+    border: none;
+    padding: 7px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.28);
+    transition: var(--transition);
+    touch-action: manipulation;
+    white-space: nowrap;
+}
+
+.header-pwa-install-btn:hover {
+    background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+}
+
+.header-pwa-install-btn:active {
+    transform: translateY(0);
+}
+
+.header-pwa-install-btn svg {
+    flex-shrink: 0;
+}
+
+/* 2. Sidebar Install Button */
+.sidebar-pwa-wrap {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--surface-border);
+}
+
+.sidebar-pwa-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--surface-card);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    touch-action: manipulation;
+}
+
+.sidebar-pwa-btn:hover {
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+/* 3. Real-time Offline Connectivity Banner */
+.offline-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #fffbeb;
+    color: #92400e;
+    border-bottom: 1px solid #fde68a;
+    padding: 10px 24px;
+    font-size: 13px;
+    animation: slideDown 0.3s ease-out;
+    position: sticky;
+    top: 70px;
+    z-index: 80;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.offline-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.offline-pulse-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #f59e0b;
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    animation: offlinePulse 1.8s infinite;
+    flex-shrink: 0;
+}
+
+@keyframes offlinePulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    }
+}
+
+.offline-retry-btn {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    color: #92400e;
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.offline-retry-btn:hover {
+    background: #fde68a;
+    color: #78350f;
+}
+
+/* 4. iOS Safari Installation Guidance Modal */
+.ios-modal-dialog {
+    max-width: 440px;
+}
+
+.ios-app-preview {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px;
+    background: var(--surface-soft);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--surface-border);
+    margin-bottom: 18px;
+}
+
+.ios-preview-icon {
+    border-radius: 14px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
+}
+
+.ios-preview-text strong {
+    font-size: 15px;
+    color: var(--text-main);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.ios-preview-text p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.ios-preview-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 2px 8px;
+    background: rgba(2, 132, 199, 0.1);
+    color: var(--primary);
+    border-radius: 20px;
+}
+
+.ios-steps-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.ios-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.step-desc {
+    font-size: 13.5px;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.ios-icon-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface-soft);
+    border: 1px solid var(--surface-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+/* 5. Standalone Display Mode Adaptations */
+@media all and (display-mode: standalone) {
+    /* Hide the install prompt buttons once already running in standalone mode */
+    .header-pwa-install-btn,
+    .sidebar-pwa-wrap {
+        display: none !important;
+    }
+
+    /* iOS notch padding when installed as PWA */
+    .header {
+        padding-top: max(0px, env(safe-area-inset-top));
+        height: calc(70px + env(safe-area-inset-top));
+    }
+
+    .main-content {
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+}
+
+body.pwa-standalone .header-pwa-install-btn,
+body.pwa-standalone .sidebar-pwa-wrap {
+    display: none !important;
+}
+
+/* Responsive adjustment for header install button on mobile */
+@media (max-width: 640px) {
+    .header-pwa-install-btn {
+        padding: 6px 10px;
+    }
+
+    .header-pwa-install-btn .pwa-btn-label {
+        display: none;
+    }
+
+    .offline-banner {
+        padding: 8px 12px;
+        font-size: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .offline-retry-btn {
+        align-self: flex-end;
+    }
+}
+

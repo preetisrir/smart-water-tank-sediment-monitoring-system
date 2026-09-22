@@ -1205,6 +1205,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const menuBtn = document.getElementById("menuButton");
     const overlay = document.getElementById("sidebarOverlay");
     const sidebar = document.getElementById("sidebar");
+    const sidebarCloseBtn = document.getElementById("sidebarCloseBtn");
 
     if (menuBtn && sidebar && overlay) {
         menuBtn.addEventListener("click", () => {
@@ -1212,6 +1213,9 @@ document.addEventListener("DOMContentLoaded", () => {
             overlay.classList.toggle("active");
         });
         overlay.addEventListener("click", closeMobileSidebar);
+    }
+    if (sidebarCloseBtn) {
+        sidebarCloseBtn.addEventListener("click", closeMobileSidebar);
     }
 
     // Notification button
@@ -1387,7 +1391,209 @@ document.addEventListener("DOMContentLoaded", () => {
         if (appState.currentPage === "dashboard") loadRecentReadings();
         if (appState.currentPage === "monitoring") loadMonitoringStream();
     }, 3000);
+
+    // Initialize Progressive Web App (PWA) Manager
+    initPwaManager();
 });
+
+// =========================================================
+// PROGRESSIVE WEB APP (PWA) LIFECYCLE & INSTALLATION MANAGER
+// =========================================================
+let deferredInstallPrompt = null;
+
+function initPwaManager() {
+    // 1. Detect Standalone Display Mode
+    const isStandalone = 
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.matchMedia('(display-mode: minimal-ui)').matches ||
+        window.navigator.standalone === true ||
+        document.referrer.includes('android-app://');
+
+    if (isStandalone) {
+        document.body.classList.add('pwa-standalone');
+        console.log('[PWA] Operating in standalone display mode.');
+    }
+
+    // Monitor display-mode changes
+    try {
+        const standaloneMatcher = window.matchMedia('(display-mode: standalone)');
+        if (standaloneMatcher.addEventListener) {
+            standaloneMatcher.addEventListener('change', (e) => {
+                if (e.matches) {
+                    document.body.classList.add('pwa-standalone');
+                    toggleInstallButtons(false);
+                }
+            });
+        }
+    } catch (_) {}
+
+    // 2. Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                .then((registration) => {
+                    console.log('[PWA] Service Worker registered with scope:', registration.scope);
+
+                    // Check for background worker updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        if (!newWorker) return;
+
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                showToast('SmartTank has been updated in the background.', 'info');
+                            }
+                        });
+                    });
+                })
+                .catch((err) => {
+                    console.warn('[PWA] Service Worker registration failed:', err);
+                });
+        });
+    }
+
+    // 3. Capture beforeinstallprompt Event
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent default mini-infobar on mobile Chrome
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        console.log('[PWA] beforeinstallprompt event captured and ready.');
+
+        // Show install buttons if not in standalone mode
+        if (!isStandalone) {
+            toggleInstallButtons(true);
+        }
+    });
+
+    // 4. Handle Successful Installation
+    window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null;
+        toggleInstallButtons(false);
+        document.body.classList.add('pwa-standalone');
+        showToast('SmartTank installed successfully! Accessible from your home screen or apps menu.', 'success');
+        console.log('[PWA] SmartTank installed on host system.');
+    });
+
+    // 5. Connect UI Install Trigger Buttons
+    const headerInstallBtn = document.getElementById('headerPwaInstallBtn');
+    const sidebarInstallBtn = document.getElementById('sidebarPwaBtn');
+
+    const handleInstallClick = async () => {
+        // Check if on iOS
+        const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()) && !window.MSStream;
+
+        if (deferredInstallPrompt) {
+            // Trigger native installation banner
+            deferredInstallPrompt.prompt();
+            const choiceResult = await deferredInstallPrompt.userChoice;
+            console.log('[PWA] User response to installation prompt:', choiceResult.outcome);
+
+            if (choiceResult.outcome === 'accepted') {
+                showToast('Installing SmartTank...', 'info');
+                toggleInstallButtons(false);
+            }
+            deferredInstallPrompt = null;
+        } else if (isIOS) {
+            // Display iOS Safari guided instructions modal
+            openIosInstallModal();
+        } else {
+            // Inform user how to install via browser controls
+            showToast('To install SmartTank, tap your browser menu (⋮ or Share) and select "Install app" or "Add to Home screen".', 'info');
+        }
+    };
+
+    if (headerInstallBtn) headerInstallBtn.addEventListener('click', handleInstallClick);
+    if (sidebarInstallBtn) sidebarInstallBtn.addEventListener('click', handleInstallClick);
+
+    // Initial button visibility: keep visible unless already standalone
+    if (isStandalone) {
+        toggleInstallButtons(false);
+    } else {
+        toggleInstallButtons(true);
+    }
+
+    // 6. iOS Installation Guidance Modal Listeners
+    const iosModal = document.getElementById('iosInstallModal');
+    const closeIosBtn = document.getElementById('closeIosInstallModalBtn');
+    const dismissIosBtn = document.getElementById('dismissIosModalBtn');
+
+    if (closeIosBtn) closeIosBtn.addEventListener('click', closeIosInstallModal);
+    if (dismissIosBtn) dismissIosBtn.addEventListener('click', closeIosInstallModal);
+    if (iosModal) {
+        iosModal.addEventListener('click', (e) => {
+            if (e.target === iosModal) closeIosInstallModal();
+        });
+    }
+
+    // 7. Online / Offline Connectivity Detection
+    function handleConnectivityChange() {
+        const isOnline = navigator.onLine;
+        const banner = document.getElementById('offlineBanner');
+        
+        if (banner) {
+            banner.style.display = isOnline ? 'none' : 'flex';
+        }
+
+        if (!isOnline) {
+            showToast('You are currently offline. Displaying cached operational telemetry.', 'warning');
+        } else {
+            showToast('Connection restored. Resuming live telemetry synchronization.', 'success');
+            fetchLatestTelemetry();
+            if (appState.currentPage === 'dashboard') loadRecentReadings();
+            if (appState.currentPage === 'monitoring') loadMonitoringStream();
+        }
+    }
+
+    window.addEventListener('online', handleConnectivityChange);
+    window.addEventListener('offline', handleConnectivityChange);
+
+    // Initial check on load
+    if (!navigator.onLine) {
+        const banner = document.getElementById('offlineBanner');
+        if (banner) banner.style.display = 'flex';
+    }
+
+    // Offline banner retry button
+    const retryBtn = document.getElementById('offlineRetryBtn');
+    if (retryBtn) {
+        retryBtn.addEventListener('click', () => {
+            if (navigator.onLine) {
+                const banner = document.getElementById('offlineBanner');
+                if (banner) banner.style.display = 'none';
+                showToast('Reconnected successfully!', 'success');
+                fetchLatestTelemetry();
+            } else {
+                showToast('Still offline. Please check your network connection.', 'warning');
+            }
+        });
+    }
+}
+
+function toggleInstallButtons(visible) {
+    const headerInstallBtn = document.getElementById('headerPwaInstallBtn');
+    const sidebarPwaWrap = document.getElementById('sidebarPwaWrap');
+
+    if (headerInstallBtn) {
+        headerInstallBtn.style.display = visible ? 'inline-flex' : 'none';
+    }
+    if (sidebarPwaWrap) {
+        sidebarPwaWrap.style.display = visible ? 'block' : 'none';
+    }
+}
+
+function openIosInstallModal() {
+    const modal = document.getElementById('iosInstallModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeIosInstallModal() {
+    const modal = document.getElementById('iosInstallModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
 
 // Global app interface for inline event attributes
 window.app = {

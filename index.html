@@ -2,11 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0284c7">
     <title>SmartTank | Sediment Monitoring & Automatic Control System</title>
     <meta name="description" content="Smart Water Tank Sediment Monitoring & Automatic Control System">
     <meta property="og:title" content="SmartTank | Sediment Monitoring & Automatic Control System">
     <meta property="og:description" content="Smart Water Tank Sediment Monitoring & Automatic Control System">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SmartTank">
+    <meta name="application-name" content="SmartTank">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -29,6 +40,7 @@
                 <strong>SmartTank</strong>
                 <small>Sediment & Supply Control</small>
             </div>
+            <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close sidebar menu">&times;</button>
         </div>
 
         <nav class="navigation">
@@ -107,6 +119,18 @@
                     <small id="connectionLatencyText">Live sync active</small>
                 </div>
             </div>
+
+            <!-- In-App PWA Install in Sidebar -->
+            <div class="sidebar-pwa-wrap" id="sidebarPwaWrap">
+                <button class="sidebar-pwa-btn" id="sidebarPwaBtn" aria-label="Install SmartTank App">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Install App (PWA)</span>
+                </button>
+            </div>
         </div>
 
     </aside>
@@ -121,10 +145,21 @@
             </button>
 
             <div class="header-title">
-                <span>Smart Water Tank Sediment Monitoring</span>
+                <span class="header-title-full">Smart Water Tank Sediment Monitoring</span>
+                <span class="header-title-short">SmartTank</span>
             </div>
 
             <div class="header-right">
+                <!-- PWA Install Button (Header) -->
+                <button class="header-pwa-install-btn" id="headerPwaInstallBtn" aria-label="Install SmartTank Progressive Web App" title="Install SmartTank for offline standalone access">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span class="pwa-btn-label">Install App</span>
+                </button>
+
                 <button class="notification-button" id="notificationButton" aria-label="View alerts">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                     <span class="notification-count" id="headerAlertCount">0</span>
@@ -140,6 +175,15 @@
                 </div>
             </div>
         </header>
+
+        <!-- Real-time Connectivity / Offline Indicator Banner -->
+        <div class="offline-banner" id="offlineBanner" style="display: none;">
+            <div class="offline-banner-content">
+                <span class="offline-pulse-dot"></span>
+                <span class="offline-banner-text"><strong>Offline Mode Active</strong> — Serving cached telemetry & App Shell. Real-time updates pause until network is restored.</span>
+            </div>
+            <button class="offline-retry-btn" id="offlineRetryBtn" aria-label="Check connection">Check Network</button>
+        </div>
 
         <div class="page-container">
 
@@ -1169,6 +1213,53 @@
                 <button type="submit" class="primary-button" id="submitLoginBtn">Sign In</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- ================= iOS SAFARI PWA INSTALL GUIDE MODAL ================= -->
+<div class="modal-backdrop" id="iosInstallModal" style="display: none;">
+    <div class="modal-dialog ios-modal-dialog">
+        <div class="modal-header">
+            <div>
+                <h3>Install SmartTank on iOS</h3>
+                <p>Add to your iPhone or iPad Home Screen for fullscreen & offline use</p>
+            </div>
+            <button class="modal-close-btn" id="closeIosInstallModalBtn" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="modal-body ios-guide-body">
+            <div class="ios-app-preview">
+                <img src="/apple-touch-icon.png" alt="SmartTank Icon" width="56" height="56" class="ios-preview-icon">
+                <div class="ios-preview-text">
+                    <strong>SmartTank PWA</strong>
+                    <p>Sediment Monitoring & Automatic Control</p>
+                    <span class="ios-preview-badge">Fast • Offline-Ready • Standalone</span>
+                </div>
+            </div>
+            <ol class="ios-steps-list">
+                <li class="ios-step-item">
+                    <span class="step-num">1</span>
+                    <div class="step-desc">
+                        Tap the <strong>Share</strong> button in Safari's toolbar:
+                        <span class="ios-icon-hint"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> Share</span>
+                    </div>
+                </li>
+                <li class="ios-step-item">
+                    <span class="step-num">2</span>
+                    <div class="step-desc">
+                        Scroll down and tap <strong>Add to Home Screen</strong> <span class="ios-icon-hint">➕</span>
+                    </div>
+                </li>
+                <li class="ios-step-item">
+                    <span class="step-num">3</span>
+                    <div class="step-desc">
+                        Tap <strong>Add</strong> at the top right corner to complete installation.
+                    </div>
+                </li>
+            </ol>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="primary-button" id="dismissIosModalBtn" style="width: 100%;">Understood</button>
+        </div>
     </div>
 </div>
 

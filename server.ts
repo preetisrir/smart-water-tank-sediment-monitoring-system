@@ -650,10 +650,56 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 // =========================================================
-// FRONTEND STATIC FILES SERVING
+// FRONTEND STATIC FILES SERVING & PWA ROUTES
 // =========================================================
 
 const staticRoot = path.resolve(process.cwd());
+
+// Service Worker with full root scope allowance and no-cache policy
+app.get("/sw.js", (req, res) => {
+  res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+  res.setHeader("Service-Worker-Allowed", "/");
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(staticRoot, "sw.js"));
+});
+
+// Web App Manifest
+app.get("/manifest.json", (req, res) => {
+  res.setHeader("Content-Type", "application/manifest+json; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.sendFile(path.join(staticRoot, "manifest.json"));
+});
+
+// App Icons
+app.get("/icon.svg", (req, res) => {
+  res.setHeader("Content-Type", "image/svg+xml");
+  res.sendFile(path.join(staticRoot, "icon.svg"));
+});
+
+app.get("/pwa-192x192.png", (req, res) => {
+  res.setHeader("Content-Type", "image/png");
+  res.sendFile(path.join(staticRoot, "pwa-192x192.png"));
+});
+
+app.get("/pwa-512x512.png", (req, res) => {
+  res.setHeader("Content-Type", "image/png");
+  res.sendFile(path.join(staticRoot, "pwa-512x512.png"));
+});
+
+app.get("/pwa-maskable-512x512.png", (req, res) => {
+  res.setHeader("Content-Type", "image/png");
+  res.sendFile(path.join(staticRoot, "pwa-maskable-512x512.png"));
+});
+
+app.get("/apple-touch-icon.png", (req, res) => {
+  res.setHeader("Content-Type", "image/png");
+  res.sendFile(path.join(staticRoot, "apple-touch-icon.png"));
+});
+
+app.get("/favicon.ico", (req, res) => {
+  res.setHeader("Content-Type", "image/x-icon");
+  res.sendFile(path.join(staticRoot, "favicon.ico"));
+});
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(staticRoot, "index.html"));
@@ -664,10 +710,12 @@ app.get("/index.html", (req, res) => {
 });
 
 app.get("/style.css", (req, res) => {
+  res.setHeader("Content-Type", "text/css; charset=utf-8");
   res.sendFile(path.join(staticRoot, "style.css"));
 });
 
 app.get("/script.js", (req, res) => {
+  res.setHeader("Content-Type", "application/javascript; charset=utf-8");
   res.sendFile(path.join(staticRoot, "script.js"));
 });
 
